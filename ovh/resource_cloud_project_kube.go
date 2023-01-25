@@ -20,6 +20,7 @@ const (
 	kubeClusterUpdatePolicyKey                = "update_policy"
 	kubeClusterVersionKey                     = "version"
 	kubeClusterCustomizationKey               = "customization"
+	kubeClusterProxyModeKey                   = "kube_proxy_mode"
 )
 
 func resourceCloudProjectKube() *schema.Resource {
@@ -53,41 +54,184 @@ func resourceCloudProjectKube() *schema.Resource {
 			},
 			kubeClusterCustomizationKey: {
 				Type:     schema.TypeSet,
-				Computed: true,
+				Computed: false,
 				Optional: true,
 				ForceNew: false,
 				MaxItems: 1,
+				Set:      CustomSchemaSetFunc(false),
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"apiserver": {
 							Type:     schema.TypeSet,
-							Computed: true,
+							Computed: false,
 							Optional: true,
 							ForceNew: false,
 							MaxItems: 1,
+							Set:      CustomSchemaSetFunc(false),
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"admissionplugins": {
 										Type:     schema.TypeSet,
-										Computed: true,
+										Computed: false,
 										Optional: true,
 										ForceNew: false,
 										MaxItems: 1,
+										Set:      CustomSchemaSetFunc(false),
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"enabled": {
 													Type:     schema.TypeList,
-													Computed: true,
-													Optional: true,
+													Computed: false,
+													Required: true,
 													ForceNew: false,
 													Elem:     &schema.Schema{Type: schema.TypeString},
 												},
 												"disabled": {
 													Type:     schema.TypeList,
+													Computed: false,
+													Required: true,
+													ForceNew: false,
+													Elem:     &schema.Schema{Type: schema.TypeString},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"kube_proxy": {
+							Type:     schema.TypeSet,
+							Computed: true,
+							Optional: true,
+							ForceNew: false,
+							MaxItems: 1,
+							Set:      CustomSchemaSetFunc(true),
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"iptables": {
+										Type:     schema.TypeSet,
+										Computed: true,
+										Optional: true,
+										ForceNew: false,
+										MaxItems: 1,
+										Set:      CustomSchemaSetFunc(false),
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"min_sync_period": {
+													Type:             schema.TypeString,
+													Computed:         true,
+													Optional:         true,
+													ForceNew:         false,
+													DiffSuppressFunc: DiffDurationRfc3339,
+													StateFunc: func(i interface{}) string {
+														str := i.(string)
+														if str == "PT0S" {
+															return "P0D"
+														}
+														return str
+													},
+												},
+												"sync_period": {
+													Type:             schema.TypeString,
+													Computed:         true,
+													Optional:         true,
+													ForceNew:         false,
+													DiffSuppressFunc: DiffDurationRfc3339,
+													StateFunc: func(i interface{}) string {
+														str := i.(string)
+														if str == "PT0S" {
+															return "P0D"
+														}
+														return str
+													},
+												},
+											},
+										},
+									},
+									"ipvs": {
+										Type:     schema.TypeSet,
+										Computed: true,
+										Optional: true,
+										ForceNew: false,
+										MaxItems: 1,
+										Set:      CustomSchemaSetFunc(false),
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"min_sync_period": {
+													Type:             schema.TypeString,
+													Computed:         true,
+													Optional:         true,
+													ForceNew:         false,
+													DiffSuppressFunc: DiffDurationRfc3339,
+													StateFunc: func(i interface{}) string {
+														str := i.(string)
+														if str == "PT0S" {
+															return "P0D"
+														}
+														return str
+													},
+												},
+												"sync_period": {
+													Type:             schema.TypeString,
+													Computed:         true,
+													Optional:         true,
+													ForceNew:         false,
+													DiffSuppressFunc: DiffDurationRfc3339,
+													StateFunc: func(i interface{}) string {
+														str := i.(string)
+														if str == "PT0S" {
+															return "P0D"
+														}
+														return str
+													},
+												},
+												"scheduler": {
+													Type:     schema.TypeString,
 													Computed: true,
 													Optional: true,
 													ForceNew: false,
-													Elem:     &schema.Schema{Type: schema.TypeString},
+												},
+												"tcp_fin_timeout": {
+													Type:             schema.TypeString,
+													Computed:         true,
+													Optional:         true,
+													ForceNew:         false,
+													DiffSuppressFunc: DiffDurationRfc3339,
+													StateFunc: func(i interface{}) string {
+														str := i.(string)
+														if str == "PT0S" {
+															return "P0D"
+														}
+														return str
+													},
+												},
+												"tcp_timeout": {
+													Type:             schema.TypeString,
+													Computed:         true,
+													Optional:         true,
+													ForceNew:         false,
+													DiffSuppressFunc: DiffDurationRfc3339,
+													StateFunc: func(i interface{}) string {
+														str := i.(string)
+														if str == "PT0S" {
+															return "P0D"
+														}
+														return str
+													},
+												},
+												"udp_timeout": {
+													Type:             schema.TypeString,
+													Computed:         true,
+													Optional:         true,
+													ForceNew:         false,
+													DiffSuppressFunc: DiffDurationRfc3339,
+													StateFunc: func(i interface{}) string {
+														str := i.(string)
+														if str == "PT0S" {
+															return "P0D"
+														}
+														return str
+													},
 												},
 											},
 										},
@@ -99,6 +243,11 @@ func resourceCloudProjectKube() *schema.Resource {
 				},
 			},
 			kubeClusterPrivateNetworkIDKey: {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			kubeClusterProxyModeKey: {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
@@ -167,6 +316,17 @@ func resourceCloudProjectKube() *schema.Resource {
 				Sensitive: true,
 			},
 		},
+	}
+}
+
+func CustomSchemaSetFunc(output bool) schema.SchemaSetFunc {
+	return func(i interface{}) int {
+		out := fmt.Sprintf("%#v", i)
+		hash := schema.HashString(out)
+		if output {
+			log.Printf(">>>>>>>%d %s\n", hash, out)
+		}
+		return hash
 	}
 }
 
@@ -290,10 +450,13 @@ func resourceCloudProjectKubeUpdate(d *schema.ResourceData, meta interface{}) er
 		_, newValueI := d.GetChange(kubeClusterCustomizationKey)
 		customization := loadCustomization(newValueI)
 
-		endpoint := fmt.Sprintf("/cloud/project/%s/kube/%s/customization", serviceName, d.Id())
-		err := config.OVHClient.Put(endpoint, CloudProjectKubeUpdateCustomizationOpts{
+		params := &CloudProjectKubeUpdateCustomizationOpts{
 			APIServer: customization.APIServer,
-		}, nil)
+			KubeProxy: customization.KubeProxy,
+		}
+
+		endpoint := fmt.Sprintf("/cloud/project/%s/kube/%s/customization", serviceName, d.Id())
+		err := config.OVHClient.Put(endpoint, params, nil)
 		if err != nil {
 			return err
 		}

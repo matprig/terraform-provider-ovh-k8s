@@ -29,6 +29,11 @@ func dataSourceCloudProjectKube() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			kubeClusterProxyModeKey: {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			kubeClusterCustomizationKey: {
 				Type:     schema.TypeSet,
 				Computed: true,
@@ -66,6 +71,87 @@ func dataSourceCloudProjectKube() *schema.Resource {
 													Optional: true,
 													ForceNew: false,
 													Elem:     &schema.Schema{Type: schema.TypeString},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"kube_proxy": {
+							Type:     schema.TypeSet,
+							Computed: true,
+							Optional: true,
+							ForceNew: false,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"iptables": {
+										Type:     schema.TypeSet,
+										Computed: true,
+										Optional: true,
+										ForceNew: false,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"min_sync_period": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Optional: true,
+													ForceNew: false,
+												},
+												"sync_period": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Optional: true,
+													ForceNew: false,
+												},
+											},
+										},
+									},
+									"ipvs": {
+										Type:     schema.TypeSet,
+										Computed: true,
+										Optional: true,
+										ForceNew: false,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"min_sync_period": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Optional: true,
+													ForceNew: false,
+												},
+												"sync_period": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Optional: true,
+													ForceNew: false,
+												},
+												"scheduler": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Optional: true,
+													ForceNew: false,
+												},
+												"tcp_fin_timeout": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Optional: true,
+													ForceNew: false,
+												},
+												"tcp_timeout": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Optional: true,
+													ForceNew: false,
+												},
+												"udp_timeout": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Optional: true,
+													ForceNew: false,
 												},
 											},
 										},
