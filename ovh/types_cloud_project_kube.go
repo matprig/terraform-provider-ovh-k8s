@@ -97,67 +97,68 @@ func loadCustomization(i interface{}) *Customization {
 
 	// Customization
 	customizationSet := i.(*schema.Set).List()
-	customization := customizationSet[0].(map[string]interface{})
+	if len(customizationSet) > 0 {
+		customization := customizationSet[0].(map[string]interface{})
 
-	// Nested APIServer customization
-	apiServerSet := customization["apiserver"].(*schema.Set).List()
-	if len(apiServerSet) > 0 {
-		apiServer := apiServerSet[0].(map[string]interface{})
+		// Nested APIServer customization
+		apiServerSet := customization["apiserver"].(*schema.Set).List()
+		if len(apiServerSet) > 0 {
+			apiServer := apiServerSet[0].(map[string]interface{})
 
-		admissionPluginsSet := apiServer["admissionplugins"].(*schema.Set).List()
-		admissionPlugins := admissionPluginsSet[0].(map[string]interface{})
+			admissionPluginsSet := apiServer["admissionplugins"].(*schema.Set).List()
+			admissionPlugins := admissionPluginsSet[0].(map[string]interface{})
 
-		// Enabled admission plugins
-		{
-			stringArray := admissionPlugins["enabled"].([]interface{})
-			enabled := []string{}
-			for _, s := range stringArray {
-				enabled = append(enabled, s.(string))
+			// Enabled admission plugins
+			{
+				stringArray := admissionPlugins["enabled"].([]interface{})
+				enabled := []string{}
+				for _, s := range stringArray {
+					enabled = append(enabled, s.(string))
+				}
+				customizationOutput.APIServer.AdmissionPlugins.Enabled = &enabled
 			}
-			customizationOutput.APIServer.AdmissionPlugins.Enabled = &enabled
+
+			// Disabled admission plugins
+			{
+				stringArray := admissionPlugins["disabled"].([]interface{})
+				disabled := []string{}
+				for _, s := range stringArray {
+					disabled = append(disabled, s.(string))
+				}
+				customizationOutput.APIServer.AdmissionPlugins.Disabled = &disabled
+			}
 		}
 
-		// Disabled admission plugins
-		{
-			stringArray := admissionPlugins["disabled"].([]interface{})
-			disabled := []string{}
-			for _, s := range stringArray {
-				disabled = append(disabled, s.(string))
+		// Nested KubeProxy customization
+		kubeProxySet := customization["kube_proxy"].(*schema.Set).List()
+		if len(kubeProxySet) > 0 {
+			kubeProxy := kubeProxySet[0].(map[string]interface{})
+
+			// Nested IPTables customization
+			{
+				ipTablesSet := kubeProxy["iptables"].(*schema.Set).List()
+				if len(ipTablesSet) > 0 {
+					ipTables := ipTablesSet[0].(map[string]interface{})
+					customizationOutput.KubeProxy.IPTables.MinSyncPeriod = helpers.GetNilStringPointerFromData(ipTables, "min_sync_period")
+					customizationOutput.KubeProxy.IPTables.SyncPeriod = helpers.GetNilStringPointerFromData(ipTables, "sync_period")
+				}
 			}
-			customizationOutput.APIServer.AdmissionPlugins.Disabled = &disabled
+
+			// Nested IPVS customization
+			{
+				ipvsSet := kubeProxy["ipvs"].(*schema.Set).List()
+				if len(ipvsSet) > 0 {
+					ipvs := ipvsSet[0].(map[string]interface{})
+					customizationOutput.KubeProxy.IPVS.MinSyncPeriod = helpers.GetNilStringPointerFromData(ipvs, "min_sync_period")
+					customizationOutput.KubeProxy.IPVS.Scheduler = helpers.GetNilStringPointerFromData(ipvs, "scheduler")
+					customizationOutput.KubeProxy.IPVS.SyncPeriod = helpers.GetNilStringPointerFromData(ipvs, "sync_period")
+					customizationOutput.KubeProxy.IPVS.TCPFinTimeout = helpers.GetNilStringPointerFromData(ipvs, "tcp_fin_timeout")
+					customizationOutput.KubeProxy.IPVS.TCPTimeout = helpers.GetNilStringPointerFromData(ipvs, "tcp_timeout")
+					customizationOutput.KubeProxy.IPVS.UDPTimeout = helpers.GetNilStringPointerFromData(ipvs, "udp_timeout")
+				}
+			}
 		}
 	}
-
-	// Nested KubeProxy customization
-	kubeProxySet := customization["kube_proxy"].(*schema.Set).List()
-	if len(kubeProxySet) > 0 {
-		kubeProxy := kubeProxySet[0].(map[string]interface{})
-
-		// Nested IPTables customization
-		{
-			ipTablesSet := kubeProxy["iptables"].(*schema.Set).List()
-			if len(ipTablesSet) > 0 {
-				ipTables := ipTablesSet[0].(map[string]interface{})
-				customizationOutput.KubeProxy.IPTables.MinSyncPeriod = helpers.GetNilStringPointerFromData(ipTables, "min_sync_period")
-				customizationOutput.KubeProxy.IPTables.SyncPeriod = helpers.GetNilStringPointerFromData(ipTables, "sync_period")
-			}
-		}
-
-		// Nested IPVS customization
-		{
-			ipvsSet := kubeProxy["ipvs"].(*schema.Set).List()
-			if len(ipvsSet) > 0 {
-				ipvs := ipvsSet[0].(map[string]interface{})
-				customizationOutput.KubeProxy.IPVS.MinSyncPeriod = helpers.GetNilStringPointerFromData(ipvs, "min_sync_period")
-				customizationOutput.KubeProxy.IPVS.Scheduler = helpers.GetNilStringPointerFromData(ipvs, "scheduler")
-				customizationOutput.KubeProxy.IPVS.SyncPeriod = helpers.GetNilStringPointerFromData(ipvs, "sync_period")
-				customizationOutput.KubeProxy.IPVS.TCPFinTimeout = helpers.GetNilStringPointerFromData(ipvs, "tcp_fin_timeout")
-				customizationOutput.KubeProxy.IPVS.TCPTimeout = helpers.GetNilStringPointerFromData(ipvs, "tcp_timeout")
-				customizationOutput.KubeProxy.IPVS.UDPTimeout = helpers.GetNilStringPointerFromData(ipvs, "udp_timeout")
-			}
-		}
-	}
-
 	return &customizationOutput
 }
 
