@@ -101,7 +101,7 @@ func resourceCloudProjectKube() *schema.Resource {
 						},
 						"kube_proxy": {
 							Type:     schema.TypeSet,
-							Computed: true,
+							Computed: false,
 							Optional: true,
 							ForceNew: false,
 							MaxItems: 1,
@@ -110,7 +110,7 @@ func resourceCloudProjectKube() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"iptables": {
 										Type:     schema.TypeSet,
-										Computed: true,
+										Computed: false,
 										Optional: true,
 										ForceNew: false,
 										MaxItems: 1,
@@ -119,7 +119,7 @@ func resourceCloudProjectKube() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 												"min_sync_period": {
 													Type:             schema.TypeString,
-													Computed:         true,
+													Computed:         false,
 													Optional:         true,
 													ForceNew:         false,
 													DiffSuppressFunc: DiffDurationRfc3339,
@@ -133,7 +133,7 @@ func resourceCloudProjectKube() *schema.Resource {
 												},
 												"sync_period": {
 													Type:             schema.TypeString,
-													Computed:         true,
+													Computed:         false,
 													Optional:         true,
 													ForceNew:         false,
 													DiffSuppressFunc: DiffDurationRfc3339,
@@ -150,7 +150,7 @@ func resourceCloudProjectKube() *schema.Resource {
 									},
 									"ipvs": {
 										Type:     schema.TypeSet,
-										Computed: true,
+										Computed: false,
 										Optional: true,
 										ForceNew: false,
 										MaxItems: 1,
@@ -159,7 +159,7 @@ func resourceCloudProjectKube() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 												"min_sync_period": {
 													Type:             schema.TypeString,
-													Computed:         true,
+													Computed:         false,
 													Optional:         true,
 													ForceNew:         false,
 													DiffSuppressFunc: DiffDurationRfc3339,
@@ -173,7 +173,7 @@ func resourceCloudProjectKube() *schema.Resource {
 												},
 												"sync_period": {
 													Type:             schema.TypeString,
-													Computed:         true,
+													Computed:         false,
 													Optional:         true,
 													ForceNew:         false,
 													DiffSuppressFunc: DiffDurationRfc3339,
@@ -187,13 +187,13 @@ func resourceCloudProjectKube() *schema.Resource {
 												},
 												"scheduler": {
 													Type:     schema.TypeString,
-													Computed: true,
+													Computed: false,
 													Optional: true,
 													ForceNew: false,
 												},
 												"tcp_fin_timeout": {
 													Type:             schema.TypeString,
-													Computed:         true,
+													Computed:         false,
 													Optional:         true,
 													ForceNew:         false,
 													DiffSuppressFunc: DiffDurationRfc3339,
@@ -207,7 +207,7 @@ func resourceCloudProjectKube() *schema.Resource {
 												},
 												"tcp_timeout": {
 													Type:             schema.TypeString,
-													Computed:         true,
+													Computed:         false,
 													Optional:         true,
 													ForceNew:         false,
 													DiffSuppressFunc: DiffDurationRfc3339,
@@ -221,7 +221,7 @@ func resourceCloudProjectKube() *schema.Resource {
 												},
 												"udp_timeout": {
 													Type:             schema.TypeString,
-													Computed:         true,
+													Computed:         false,
 													Optional:         true,
 													ForceNew:         false,
 													DiffSuppressFunc: DiffDurationRfc3339,

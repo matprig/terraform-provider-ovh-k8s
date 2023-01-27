@@ -1,7 +1,9 @@
 package ovh
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -244,6 +246,32 @@ func (v CloudProjectKubeResponse) ToMap() map[string]interface{} {
 			},
 		},
 	}
+
+	if obj["customization"].([]map[string]interface{})[0]["kube_proxy"] != nil && len(obj["customization"].([]map[string]interface{})[0]["kube_proxy"].([]map[string]interface{})) > 0 {
+		if obj["customization"].([]map[string]interface{})[0]["kube_proxy"].([]map[string]interface{})[0]["iptables"].([]map[string]interface{})[0]["min_sync_period"].(*string) == nil &&
+			obj["customization"].([]map[string]interface{})[0]["kube_proxy"].([]map[string]interface{})[0]["iptables"].([]map[string]interface{})[0]["sync_period"].(*string) == nil {
+			obj["customization"].([]map[string]interface{})[0]["kube_proxy"].([]map[string]interface{})[0]["iptables"] = nil
+		}
+
+		if obj["customization"].([]map[string]interface{})[0]["kube_proxy"].([]map[string]interface{})[0]["ipvs"].([]map[string]interface{})[0]["min_sync_period"].(*string) == nil &&
+			obj["customization"].([]map[string]interface{})[0]["kube_proxy"].([]map[string]interface{})[0]["ipvs"].([]map[string]interface{})[0]["scheduler"].(*string) == nil &&
+			obj["customization"].([]map[string]interface{})[0]["kube_proxy"].([]map[string]interface{})[0]["ipvs"].([]map[string]interface{})[0]["sync_period"].(*string) == nil &&
+			obj["customization"].([]map[string]interface{})[0]["kube_proxy"].([]map[string]interface{})[0]["ipvs"].([]map[string]interface{})[0]["tcp_fin_timeout"].(*string) == nil &&
+			obj["customization"].([]map[string]interface{})[0]["kube_proxy"].([]map[string]interface{})[0]["ipvs"].([]map[string]interface{})[0]["tcp_timeout"].(*string) == nil &&
+			obj["customization"].([]map[string]interface{})[0]["kube_proxy"].([]map[string]interface{})[0]["ipvs"].([]map[string]interface{})[0]["udp_timeout"].(*string) == nil {
+			obj["customization"].([]map[string]interface{})[0]["kube_proxy"].([]map[string]interface{})[0]["ipvs"] = nil
+		}
+
+		if obj["customization"].([]map[string]interface{})[0]["kube_proxy"].([]map[string]interface{})[0]["iptables"] == nil &&
+			obj["customization"].([]map[string]interface{})[0]["kube_proxy"].([]map[string]interface{})[0]["ipvs"] == nil {
+			obj["customization"].([]map[string]interface{})[0]["kube_proxy"] = nil
+		}
+	}
+
+	i, _ := json.MarshalIndent(v, "", "  ")
+	o, _ := json.MarshalIndent(obj, "", "  ")
+
+	log.Printf("##### %s\n\n%s\n\n%s\n\n", i, o)
 
 	return obj
 }
