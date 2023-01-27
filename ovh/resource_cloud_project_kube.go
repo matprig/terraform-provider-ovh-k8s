@@ -54,42 +54,46 @@ func resourceCloudProjectKube() *schema.Resource {
 			},
 			kubeClusterCustomizationKey: {
 				Type:     schema.TypeSet,
-				Computed: false,
+				Computed: true,
 				Optional: true,
 				ForceNew: false,
-				MaxItems: 1,
-				Set:      CustomSchemaSetFunc(false),
+				// MaxItems: 1,
+				Set: CustomSchemaSetFunc(false),
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"apiserver": {
 							Type:     schema.TypeSet,
-							Computed: false,
+							Computed: true,
 							Optional: true,
+							// Required: true,
 							ForceNew: false,
-							MaxItems: 1,
-							Set:      CustomSchemaSetFunc(false),
+							// MaxItems: 1,
+							Set: CustomSchemaSetFunc(false),
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"admissionplugins": {
 										Type:     schema.TypeSet,
-										Computed: false,
+										Computed: true,
 										Optional: true,
+										// Required: true,
 										ForceNew: false,
-										MaxItems: 1,
-										Set:      CustomSchemaSetFunc(false),
+										// MaxItems: 1,
+										Set: CustomSchemaSetFunc(false),
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"enabled": {
 													Type:     schema.TypeList,
-													Computed: false,
-													Required: true,
+													Computed: true,
+													Optional: true,
+													// Required: true,
 													ForceNew: false,
 													Elem:     &schema.Schema{Type: schema.TypeString},
 												},
 												"disabled": {
 													Type:     schema.TypeList,
-													Computed: false,
-													Required: true,
+													Computed: true,
+													Optional: true,
+													// Required: true,
 													ForceNew: false,
 													Elem:     &schema.Schema{Type: schema.TypeString},
 												},
