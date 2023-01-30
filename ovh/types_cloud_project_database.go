@@ -1132,19 +1132,10 @@ func (opts *CloudProjectDatabaseM3dbUserUpdateOpts) FromResource(d *schema.Resou
 
 // // Namespace
 
-func DiffDurationRfc3339(key, oldValue, newValue string, d *schema.ResourceData) bool {
-	log.Printf(">>>>>%s %s\n", oldValue, newValue)
-	if oldValue == newValue {
-		return true
-	}
-	if (oldValue == "" && newValue != "") || (oldValue != "" && newValue == "") {
-		return false
-	}
-
-	newDuration, _ := rfc3339.ParseDuration(newValue)
-	oldDuration, _ := rfc3339.ParseDuration(oldValue)
-
-	return newDuration == oldDuration
+func DiffDurationRfc3339(k, old, new string, d *schema.ResourceData) bool {
+	newD, _ := rfc3339.ParseDuration(new)
+	oldD, _ := rfc3339.ParseDuration(old)
+	return newD == oldD
 }
 
 type CloudProjectDatabaseM3dbNamespaceRetention struct {
