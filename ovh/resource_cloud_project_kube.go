@@ -19,9 +19,13 @@ const (
 	kubeClusterPrivateNetworkConfigurationKey = "private_network_configuration"
 	kubeClusterUpdatePolicyKey                = "update_policy"
 	kubeClusterVersionKey                     = "version"
-	kubeClusterCustomizationApiServerKey      = "customization_apiserver"
-	kubeClusterCustomizationKubeProxyKey      = "customization_kube_proxy"
-	kubeClusterProxyModeKey                   = "kube_proxy_mode"
+
+	kubeClusterProxyModeKey = "kube_proxy_mode"
+
+	kubeClusterCustomizationKey = "customization"
+
+	kubeClusterCustomizationApiServerKey = "customization_apiserver"
+	kubeClusterCustomizationKubeProxyKey = "customization_kube_proxy"
 )
 
 func resourceCloudProjectKube() *schema.Resource {
@@ -111,7 +115,7 @@ func resourceCloudProjectKube() *schema.Resource {
 							Optional: true,
 							ForceNew: false,
 							MaxItems: 1,
-							Set:      CustomSchemaSetFunc(false),
+							Set:      CustomIPtablesSchemaSetFunc(false),
 
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -136,7 +140,7 @@ func resourceCloudProjectKube() *schema.Resource {
 							Optional: true,
 							ForceNew: false,
 							MaxItems: 1,
-							Set:      CustomSchemaSetFunc(false),
+							Set:      CustomIPVSSchemaSetFunc(true),
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"min_sync_period": {
@@ -170,10 +174,11 @@ func resourceCloudProjectKube() *schema.Resource {
 										ForceNew: false,
 									},
 									"udp_timeout": {
-										Type:     schema.TypeString,
-										Computed: false,
-										Optional: true,
-										ForceNew: false,
+										Type:             schema.TypeString,
+										Computed:         false,
+										Optional:         true,
+										ForceNew:         false,
+										DiffSuppressFunc: DiffDurationRfc3339,
 									},
 								},
 							},
@@ -256,6 +261,51 @@ func resourceCloudProjectKube() *schema.Resource {
 				Sensitive: true,
 			},
 		},
+	}
+}
+
+func CustomIPtablesSchemaSetFunc(output bool) schema.SchemaSetFunc {
+	return func(i interface{}) int {
+		if i.(map[string]interface{})["min_sync_period"] == "P0D" {
+			i.(map[string]interface{})["min_sync_period"] = "PT0S"
+		}
+		if i.(map[string]interface{})["sync_period"] == "P0D" {
+			i.(map[string]interface{})["sync_period"] = "PT0S"
+		}
+
+		out := fmt.Sprintf("%#v", i)
+		hash := schema.HashString(out)
+		if output {
+			log.Printf(">>>>>>>%d %s\n", hash, out)
+		}
+		return hash
+	}
+}
+
+func CustomIPVSSchemaSetFunc(output bool) schema.SchemaSetFunc {
+	return func(i interface{}) int {
+		if i.(map[string]interface{})["min_sync_period"] == "P0D" {
+			i.(map[string]interface{})["min_sync_period"] = "PT0S"
+		}
+		if i.(map[string]interface{})["sync_period"] == "P0D" {
+			i.(map[string]interface{})["sync_period"] = "PT0S"
+		}
+		if i.(map[string]interface{})["tcp_fin_timeout"] == "P0D" {
+			i.(map[string]interface{})["tcp_fin_timeout"] = "PT0S"
+		}
+		if i.(map[string]interface{})["tcp_timeout"] == "P0D" {
+			i.(map[string]interface{})["tcp_timeout"] = "PT0S"
+		}
+		if i.(map[string]interface{})["udp_timeout"] == "P0D" {
+			i.(map[string]interface{})["udp_timeout"] = "PT0S"
+		}
+
+		out := fmt.Sprintf("%#v", i)
+		hash := schema.HashString(out)
+		if output {
+			log.Printf(">>>>>>>%d %s\n", hash, out)
+		}
+		return hash
 	}
 }
 

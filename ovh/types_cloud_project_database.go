@@ -1133,6 +1133,7 @@ func (opts *CloudProjectDatabaseM3dbUserUpdateOpts) FromResource(d *schema.Resou
 // // Namespace
 
 func DiffDurationRfc3339(key, oldValue, newValue string, d *schema.ResourceData) bool {
+	log.Printf(">>>>>%s %s\n", oldValue, newValue)
 	if oldValue == newValue {
 		return true
 	}
