@@ -32,7 +32,7 @@ type CloudProjectKubeCreateOpts struct {
 	Version                     *string                      `json:"version,omitempty"`
 	UpdatePolicy                *string                      `json:"updatePolicy,omitempty"`
 	Customization               *Customization               `json:"customization,omitempty"`
-	KubeProxyMode               *string                      `json:"kubeProxyMode"`
+	KubeProxyMode               *string                      `json:"kubeProxyMode,omitempty"`
 }
 
 type Customization struct {
@@ -189,7 +189,7 @@ type CloudProjectKubeResponse struct {
 	Url                    string        `json:"url"`
 	Version                string        `json:"version"`
 	Customization          Customization `json:"customization"`
-	KubeProxyMode          string        `json:"kubeProxyMode"`
+	KubeProxyMode          *string       `json:"kubeProxyMode,omitempty"`
 }
 
 func (v CloudProjectKubeResponse) ToMap() map[string]interface{} {
@@ -206,7 +206,10 @@ func (v CloudProjectKubeResponse) ToMap() map[string]interface{} {
 	obj["update_policy"] = v.UpdatePolicy
 	obj["url"] = v.Url
 	obj["version"] = v.Version[:strings.LastIndex(v.Version, ".")]
-	obj[kubeClusterProxyModeKey] = v.KubeProxyMode
+
+	if v.KubeProxyMode != nil {
+		obj[kubeClusterProxyModeKey] = v.KubeProxyMode
+	}
 
 	obj["customization_apiserver"] = []map[string]interface{}{
 		{

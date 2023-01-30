@@ -193,6 +193,7 @@ func resourceCloudProjectKube() *schema.Resource {
 			},
 			kubeClusterProxyModeKey: {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 				ForceNew: true,
 			},
