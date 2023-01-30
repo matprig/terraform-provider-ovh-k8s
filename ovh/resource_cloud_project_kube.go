@@ -19,7 +19,8 @@ const (
 	kubeClusterPrivateNetworkConfigurationKey = "private_network_configuration"
 	kubeClusterUpdatePolicyKey                = "update_policy"
 	kubeClusterVersionKey                     = "version"
-	kubeClusterCustomizationKey               = "customization"
+	kubeClusterCustomizationApiServerKey      = "customization_apiserver"
+	kubeClusterCustomizationKubeProxyKey      = "customization_kube_proxy"
 	kubeClusterProxyModeKey                   = "kube_proxy_mode"
 )
 
@@ -52,16 +53,17 @@ func resourceCloudProjectKube() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 			},
-			kubeClusterCustomizationKey: {
+			kubeClusterCustomizationApiServerKey: {
 				Type:     schema.TypeSet,
 				Computed: true,
 				Optional: true,
+				// Required: true,
 				ForceNew: false,
 				// MaxItems: 1,
 				Set: CustomSchemaSetFunc(false),
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"apiserver": {
+						"admissionplugins": {
 							Type:     schema.TypeSet,
 							Computed: true,
 							Optional: true,
@@ -71,174 +73,21 @@ func resourceCloudProjectKube() *schema.Resource {
 							Set: CustomSchemaSetFunc(false),
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"admissionplugins": {
-										Type:     schema.TypeSet,
+									"enabled": {
+										Type:     schema.TypeList,
 										Computed: true,
 										Optional: true,
 										// Required: true,
 										ForceNew: false,
-										// MaxItems: 1,
-										Set: CustomSchemaSetFunc(false),
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"enabled": {
-													Type:     schema.TypeList,
-													Computed: true,
-													Optional: true,
-													// Required: true,
-													ForceNew: false,
-													Elem:     &schema.Schema{Type: schema.TypeString},
-												},
-												"disabled": {
-													Type:     schema.TypeList,
-													Computed: true,
-													Optional: true,
-													// Required: true,
-													ForceNew: false,
-													Elem:     &schema.Schema{Type: schema.TypeString},
-												},
-											},
-										},
+										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
-								},
-							},
-						},
-						"kube_proxy": {
-							Type:     schema.TypeSet,
-							Computed: false,
-							Optional: true,
-							ForceNew: false,
-							MaxItems: 1,
-							Set:      CustomSchemaSetFunc(true),
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"iptables": {
-										Type:     schema.TypeSet,
-										Computed: false,
+									"disabled": {
+										Type:     schema.TypeList,
+										Computed: true,
 										Optional: true,
+										// Required: true,
 										ForceNew: false,
-										MaxItems: 1,
-										Set:      CustomSchemaSetFunc(false),
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"min_sync_period": {
-													Type:             schema.TypeString,
-													Computed:         false,
-													Optional:         true,
-													ForceNew:         false,
-													DiffSuppressFunc: DiffDurationRfc3339,
-													StateFunc: func(i interface{}) string {
-														str := i.(string)
-														if str == "PT0S" {
-															return "P0D"
-														}
-														return str
-													},
-												},
-												"sync_period": {
-													Type:             schema.TypeString,
-													Computed:         false,
-													Optional:         true,
-													ForceNew:         false,
-													DiffSuppressFunc: DiffDurationRfc3339,
-													StateFunc: func(i interface{}) string {
-														str := i.(string)
-														if str == "PT0S" {
-															return "P0D"
-														}
-														return str
-													},
-												},
-											},
-										},
-									},
-									"ipvs": {
-										Type:     schema.TypeSet,
-										Computed: false,
-										Optional: true,
-										ForceNew: false,
-										MaxItems: 1,
-										Set:      CustomSchemaSetFunc(false),
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"min_sync_period": {
-													Type:             schema.TypeString,
-													Computed:         false,
-													Optional:         true,
-													ForceNew:         false,
-													DiffSuppressFunc: DiffDurationRfc3339,
-													StateFunc: func(i interface{}) string {
-														str := i.(string)
-														if str == "PT0S" {
-															return "P0D"
-														}
-														return str
-													},
-												},
-												"sync_period": {
-													Type:             schema.TypeString,
-													Computed:         false,
-													Optional:         true,
-													ForceNew:         false,
-													DiffSuppressFunc: DiffDurationRfc3339,
-													StateFunc: func(i interface{}) string {
-														str := i.(string)
-														if str == "PT0S" {
-															return "P0D"
-														}
-														return str
-													},
-												},
-												"scheduler": {
-													Type:     schema.TypeString,
-													Computed: false,
-													Optional: true,
-													ForceNew: false,
-												},
-												"tcp_fin_timeout": {
-													Type:             schema.TypeString,
-													Computed:         false,
-													Optional:         true,
-													ForceNew:         false,
-													DiffSuppressFunc: DiffDurationRfc3339,
-													StateFunc: func(i interface{}) string {
-														str := i.(string)
-														if str == "PT0S" {
-															return "P0D"
-														}
-														return str
-													},
-												},
-												"tcp_timeout": {
-													Type:             schema.TypeString,
-													Computed:         false,
-													Optional:         true,
-													ForceNew:         false,
-													DiffSuppressFunc: DiffDurationRfc3339,
-													StateFunc: func(i interface{}) string {
-														str := i.(string)
-														if str == "PT0S" {
-															return "P0D"
-														}
-														return str
-													},
-												},
-												"udp_timeout": {
-													Type:             schema.TypeString,
-													Computed:         false,
-													Optional:         true,
-													ForceNew:         false,
-													DiffSuppressFunc: DiffDurationRfc3339,
-													StateFunc: func(i interface{}) string {
-														str := i.(string)
-														if str == "PT0S" {
-															return "P0D"
-														}
-														return str
-													},
-												},
-											},
-										},
+										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 								},
 							},
@@ -246,6 +95,93 @@ func resourceCloudProjectKube() *schema.Resource {
 					},
 				},
 			},
+
+			kubeClusterCustomizationKubeProxyKey: {
+				Type:     schema.TypeSet,
+				Computed: false,
+				Optional: true,
+				ForceNew: false,
+				MaxItems: 1,
+				// Set:      CustomSchemaSetFunc(true),
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"iptables": {
+							Type:     schema.TypeSet,
+							Computed: false,
+							Optional: true,
+							ForceNew: false,
+							MaxItems: 1,
+							Set:      CustomSchemaSetFunc(false),
+
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"min_sync_period": {
+										Type:     schema.TypeString,
+										Computed: false,
+										Optional: true,
+										ForceNew: false,
+									},
+									"sync_period": {
+										Type:     schema.TypeString,
+										Computed: false,
+										Optional: true,
+										ForceNew: false,
+									},
+								},
+							},
+						},
+						"ipvs": {
+							Type:     schema.TypeSet,
+							Computed: false,
+							Optional: true,
+							ForceNew: false,
+							MaxItems: 1,
+							Set:      CustomSchemaSetFunc(false),
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"min_sync_period": {
+										Type:     schema.TypeString,
+										Computed: false,
+										Optional: true,
+										ForceNew: false,
+									},
+									"sync_period": {
+										Type:     schema.TypeString,
+										Computed: false,
+										Optional: true,
+										ForceNew: false,
+									},
+									"scheduler": {
+										Type:     schema.TypeString,
+										Computed: false,
+										Optional: true,
+										ForceNew: false,
+									},
+									"tcp_fin_timeout": {
+										Type:     schema.TypeString,
+										Computed: false,
+										Optional: true,
+										ForceNew: false,
+									},
+									"tcp_timeout": {
+										Type:     schema.TypeString,
+										Computed: false,
+										Optional: true,
+										ForceNew: false,
+									},
+									"udp_timeout": {
+										Type:     schema.TypeString,
+										Computed: false,
+										Optional: true,
+										ForceNew: false,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+
 			kubeClusterPrivateNetworkIDKey: {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -450,9 +386,11 @@ func resourceCloudProjectKubeUpdate(d *schema.ResourceData, meta interface{}) er
 	config := meta.(*Config)
 	serviceName := d.Get("service_name").(string)
 
-	if d.HasChange(kubeClusterCustomizationKey) {
-		_, newValueI := d.GetChange(kubeClusterCustomizationKey)
-		customization := loadCustomization(newValueI)
+	if d.HasChange(kubeClusterCustomizationApiServerKey) || d.HasChange(kubeClusterCustomizationKubeProxyKey) {
+		_, apiServerAdmissionPlugins := d.GetChange(kubeClusterCustomizationApiServerKey)
+		_, kubeProxyCustomization := d.GetChange(kubeClusterCustomizationKubeProxyKey)
+
+		customization := loadCustomization(apiServerAdmissionPlugins, kubeProxyCustomization)
 
 		params := &CloudProjectKubeUpdateCustomizationOpts{
 			APIServer: customization.APIServer,
