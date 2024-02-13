@@ -132,6 +132,8 @@ resource "ovh_cloud_project_kube" "cluster" {
 	region        = "{{ .Region }}"
 
 	private_network_id = tolist(ovh_cloud_project_network_private.network.regions_attributes[*].openstackid)[0]
+	nodes_subnet_id = ovh_cloud_project_network_private_subnet.networksubnet.id
+	loadbalancers_subnet_id = ovh_cloud_project_network_private_subnet.networksubnet.id
 
 	private_network_configuration {
 		default_vrack_gateway              = "{{ .DefaultVrackGateway }}"

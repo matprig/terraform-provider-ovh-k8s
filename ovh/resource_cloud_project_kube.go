@@ -17,6 +17,8 @@ import (
 const (
 	kubeClusterNameKey                        = "name"
 	kubeClusterPrivateNetworkIDKey            = "private_network_id"
+	kubeClusterNodesSubnetIdKey               = "nodes_subnets_id"
+	kubeClusterLoadBalancersIdKey             = "loadbalancers_subnet_id"
 	kubeClusterPrivateNetworkConfigurationKey = "private_network_configuration"
 	kubeClusterUpdatePolicyKey                = "update_policy"
 	kubeClusterVersionKey                     = "version"
@@ -248,6 +250,18 @@ func resourceCloudProjectKube() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+			},
+			kubeClusterNodesSubnetIdKey: {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			kubeClusterLoadBalancersIdKey: {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: false,
+				ForceNew: false,
 			},
 			kubeClusterProxyModeKey: {
 				Type:         schema.TypeString,
@@ -517,6 +531,24 @@ func resourceCloudProjectKubeDelete(d *schema.ResourceData, meta interface{}) er
 func resourceCloudProjectKubeUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	serviceName := d.Get("service_name").(string)
+
+	if d.HasChange(kubeClusterLoadBalancersIdKey) {
+		_, newValue := d.GetChange(kubeClusterLoadBalancersIdKey)
+		loadBalancersSubnetId := newValue.(string)
+		params := &CloudProjectKubeUpdateLoadBalancersSubnetIdOpts{
+			LoadBalancersSubnetId: loadBalancersSubnetId,
+		}
+
+		endpoint := fmt.Sprintf("/cloud/project/%s/kube/%s/updateLoadBalancersSubnetId", serviceName, d.Id())
+		if err := config.OVHClient.Put(endpoint, params, nil); err != nil {
+			return err
+		}
+
+		log.Printf("[DEBUG] Waiting for kube %s to be READY", d.Id())
+		if err := waitForCloudProjectKubeReady(config.OVHClient, serviceName, d.Id(), []string{"REDEPLOYING", "RESETTING"}, []string{"READY"}, d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return fmt.Errorf("timeout while waiting kube %s to be READY: %w", d.Id(), err)
+		}
+	}
 
 	// if customization has changed, update it
 	if d.HasChange(kubeClusterCustomizationApiServerKey) || d.HasChange(kubeClusterCustomization) || d.HasChange(kubeClusterCustomizationKubeProxyKey) {

@@ -26,6 +26,8 @@ type privateNetworkConfiguration struct {
 type CloudProjectKubeCreateOpts struct {
 	Name                        *string                      `json:"name,omitempty"`
 	PrivateNetworkId            *string                      `json:"privateNetworkId,omitempty"`
+	NodesSubnetId               *string                      `json:"nodesSubnetId"`
+	LoadBalancersSubnetId       *string                      `json:"loadBalancersSubnetId"`
 	PrivateNetworkConfiguration *privateNetworkConfiguration `json:"privateNetworkConfiguration,omitempty"`
 	Region                      string                       `json:"region"`
 	Version                     *string                      `json:"version,omitempty"`
@@ -73,6 +75,9 @@ func (opts *CloudProjectKubeCreateOpts) FromResource(d *schema.ResourceData) {
 	opts.Name = helpers.GetNilStringPointerFromData(d, "name")
 	opts.UpdatePolicy = helpers.GetNilStringPointerFromData(d, "update_policy")
 	opts.PrivateNetworkId = helpers.GetNilStringPointerFromData(d, "private_network_id")
+	opts.NodesSubnetId = helpers.GetNilStringPointerFromData(d, "nodes_subnets_id")
+	opts.LoadBalancersSubnetId = helpers.GetNilStringPointerFromData(d, "loadbalancers_subnet_id")
+
 	opts.PrivateNetworkConfiguration = loadPrivateNetworkConfiguration(d.Get("private_network_configuration"))
 	opts.KubeProxyMode = helpers.GetNilStringPointerFromData(d, kubeClusterProxyModeKey)
 
@@ -260,6 +265,8 @@ type CloudProjectKubeResponse struct {
 	NextUpgradeVersions    []string      `json:"nextUpgradeVersions"`
 	NodesUrl               string        `json:"nodesUrl"`
 	PrivateNetworkId       string        `json:"privateNetworkId"`
+	NodesSubnetId          string        `json:"nodesSubnetId"`
+	LoadBalancersSubnetId  string        `json:"loadBalancersSubnetId"`
 	Region                 string        `json:"region"`
 	Status                 string        `json:"status"`
 	UpdatePolicy           string        `json:"updatePolicy"`
@@ -278,6 +285,8 @@ func (v *CloudProjectKubeResponse) ToMap(d *schema.ResourceData) map[string]inte
 	obj["next_upgrade_versions"] = v.NextUpgradeVersions
 	obj["nodes_url"] = v.NodesUrl
 	obj["private_network_id"] = v.PrivateNetworkId
+	obj["nodes_subnet_id"] = v.NodesSubnetId
+	obj["loadbalancers_subnet_id"] = v.LoadBalancersSubnetId
 	obj["region"] = v.Region
 	obj["status"] = v.Status
 	obj["update_policy"] = v.UpdatePolicy
@@ -442,4 +451,8 @@ func (v CloudProjectKubeNodeResponse) ToMap() map[string]interface{} {
 	obj["updated_at"] = v.UpdatedAt
 	obj["version"] = v.Version
 	return obj
+}
+
+type CloudProjectKubeUpdateLoadBalancersSubnetIdOpts struct {
+	LoadBalancersSubnetId string `json:"loadBalancersSubnetId"`
 }
